@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Karan Krishnan — Finance Analyst</title>
+<meta name="description" content="Karan Krishnan — MSc Finance, UCD Michael Smurfit Graduate Business School, Dublin. Equity valuation (DCF/FCFF, comps), Python risk modelling and empirical M&A research. Open to Financial Analyst, Equity Research and Investment Banking roles in Ireland and across the EU.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* Layout: fixed nav + results ticker, left-aligned hero, alternating full-width bands, card grids. Single dark look. */
+  :root {
+    color-scheme: dark;
+    --bg: #07070c;
+    --bg2: #0d0d15;
+    --bg3: #15151f;
+    --drawer: #111118;
+    --accent: #00e5a0;
+    --accent2: #7b61ff;
+    --accent3: #ff5d8f;
+    --text: #f0efe8;
+    --muted: #8a8a9a;
+    --border: rgba(255,255,255,0.07);
+    --card: rgba(255,255,255,0.03);
+    --font-display: 'Syne', 'Trebuchet MS', 'Segoe UI', sans-serif;
+    --font-body: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Cascadia Mono', Consolas, monospace;
+    --nav-h: 64px;
+    --safe-top: env(safe-area-inset-top, 0px);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+    cursor: none;
+  }
+  @media (hover: none) { body { cursor: auto; } #cursor, #cursor-dot { display: none !important; } }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  #flow-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .page-veil {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse 70% 60% at 80% 0%, rgba(123,97,255,0.10), transparent 60%),
+                radial-gradient(ellipse 60% 50% at 0% 100%, rgba(0,229,160,0.07), transparent 60%);
+  }
+  nav, section, footer, .ticker-bar { position: relative; z-index: 2; }
+
+  /* CURSOR */
+  #cursor {
+    position: fixed; top: 0; left: 0; width: 34px; height: 34px;
+    border: 1px solid rgba(0,229,160,0.5); border-radius: 50%;
+    transform: translate(-50%,-50%); pointer-events: none; z-index: 9999;
+    transition: width .2s, height .2s, border-color .2s, background .2s;
+    mix-blend-mode: difference;
+  }
+  #cursor-dot {
+    position: fixed; top: 0; left: 0; width: 5px; height: 5px;
+    background: var(--accent); border-radius: 50%;
+    transform: translate(-50%,-50%); pointer-events: none; z-index: 9999;
+  }
+  #cursor.grow { width: 56px; height: 56px; border-color: var(--accent); background: rgba(0,229,160,0.08); }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    height: calc(var(--nav-h) + var(--safe-top));
+    padding: var(--safe-top) 4rem 0;
+    background: rgba(7,7,12,0.7);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--font-display); font-weight: 800; font-size: 1.1rem;
+    color: var(--accent); letter-spacing: -0.02em; text-decoration: none;
+  }
+  .nav-logo span { color: var(--text); }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none;
+    font-size: 0.875rem; font-weight: 400; letter-spacing: 0.04em;
+    transition: color 0.2s; position: relative;
+  }
+  .nav-links a:not(.nav-cta)::after {
+    content:''; position:absolute; left:0; bottom:-4px; width:0; height:1px;
+    background: var(--accent); transition: width .25s;
+  }
+  .nav-links a:not(.nav-cta):hover::after { width:100%; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    padding: 0.5rem 1.25rem; border: 1px solid var(--accent);
+    color: var(--accent) !important; border-radius: 4px;
+    transition: background 0.2s, color 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--accent) !important; color: var(--bg) !important; }
+
+  /* TICKER */
+  .ticker-bar {
+    position: fixed; top: calc(var(--nav-h) + var(--safe-top)); left: 0; right: 0; z-index: 90;
+    background: rgba(13,13,21,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden; height: 34px; display: flex; align-items: center;
+  }
+  .ticker-track { display: inline-flex; white-space: nowrap; animation: ticker 46s linear infinite; }
+  .ticker-bar:hover .ticker-track { animation-play-state: paused; }
+  .ticker-item {
+    font-family: var(--font-mono); font-size: 0.72rem;
+    color: var(--muted); padding: 0 1.5rem; letter-spacing: 0.03em;
+    display: inline-flex; align-items: center; gap: 0.4rem;
+  }
+  .ticker-item b { color: var(--text); font-weight: 500; }
+  .ticker-item .up { color: var(--accent); }
+  .ticker-item .down { color: var(--accent3); }
+  .ticker-sep { color: rgba(255,255,255,0.15); }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+    padding: 9rem 4rem 4rem; overflow: hidden;
+  }
+  .hero-content { max-width: 880px; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--accent); font-weight: 500; margin-bottom: 1.5rem;
+  }
+  .hero-eyebrow::before { content:''; display:block; width: 32px; height: 1px; background: var(--accent); flex-shrink: 0; }
+  .hero-eyebrow .pulse {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0;
+    box-shadow: 0 0 0 0 rgba(0,229,160,0.6); animation: pulse 2s infinite; margin-left: -0.25rem;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0,229,160,0.5); }
+    70% { box-shadow: 0 0 0 10px rgba(0,229,160,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,229,160,0); }
+  }
+  .hero-name {
+    font-family: var(--font-display); font-size: clamp(3.2rem, 8vw, 7rem);
+    font-weight: 800; line-height: 1.0; letter-spacing: -0.03em; color: #ffffff; margin-bottom: 0.5rem;
+  }
+  .hero-name .grad {
+    background: linear-gradient(110deg, var(--accent), var(--accent2) 60%, var(--accent3));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-role {
+    font-family: var(--font-display); font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 400; color: var(--muted); margin-bottom: 2rem; letter-spacing: -0.02em;
+    min-height: 1.2em;
+  }
+  .hero-role .type-cursor { color: var(--accent); animation: blink 1s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .hero-desc { font-size: 1.05rem; color: var(--muted); max-width: 600px; margin-bottom: 3rem; font-weight: 300; line-height: 1.8; }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-primary {
+    padding: 0.85rem 2rem; background: var(--accent); color: var(--bg);
+    border: none; border-radius: 4px; font-family: var(--font-body);
+    font-size: 0.9rem; font-weight: 500; cursor: none; text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s, box-shadow .2s; letter-spacing: 0.02em; display: inline-block;
+  }
+  .btn-primary:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 10px 30px -10px rgba(0,229,160,0.5); }
+  .btn-outline {
+    padding: 0.85rem 2rem; background: transparent; color: var(--text);
+    border: 1px solid var(--border); border-radius: 4px; font-family: var(--font-body);
+    font-size: 0.9rem; font-weight: 400; cursor: none; text-decoration: none;
+    transition: border-color 0.2s, transform .2s; letter-spacing: 0.02em; display: inline-block;
+  }
+  .btn-outline:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-2px); }
+  .hero-stats { display: flex; gap: 3rem; margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--border); flex-wrap: wrap; }
+  .stat-num { font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--text); display: block; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .stat-label { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+  /* SECTION BASE */
+  section { padding: 6rem 4rem; }
+  #about, #experience, #contact { background: rgba(13,13,21,0.82); }
+  #projects, #education, #play { background: rgba(7,7,12,0.72); }
+  .section-label {
+    font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--accent); font-weight: 500; margin-bottom: 0.75rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .section-label::after { content:''; width: 32px; height: 1px; background: var(--accent); }
+  .section-title { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; color: var(--text); margin-bottom: 1rem; text-wrap: balance; }
+  .section-subtitle { font-size: 1rem; color: var(--muted); max-width: 560px; font-weight: 300; margin-bottom: 3.5rem; }
+
+  /* ABOUT */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; margin-top: 2rem; }
+  .about-grid > * { min-width: 0; }
+  .about-text p { color: var(--muted); font-weight: 300; margin-bottom: 1.25rem; line-height: 1.85; }
+  .about-text p strong { color: var(--text); font-weight: 500; }
+  .about-links { display: flex; gap: 0.75rem; margin-top: 2rem; flex-wrap: wrap; }
+  .link-pill {
+    display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 1rem;
+    border: 1px solid var(--border); border-radius: 20px; font-size: 0.82rem; color: var(--muted);
+    text-decoration: none; transition: border-color 0.2s, color 0.2s, transform .2s; cursor: none;
+  }
+  .link-pill:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+  .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; }
+  .skill-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; transition: border-color 0.2s, transform 0.2s; }
+  .skill-card:hover { border-color: rgba(0,229,160,0.25); transform: translateY(-3px); }
+  .skill-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
+  .skill-name { font-size: 0.85rem; font-weight: 500; color: var(--text); margin-bottom: 0.25rem; }
+  .skill-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+
+  /* PROJECTS */
+  .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+  .project-card {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 2rem;
+    transition: border-color 0.25s, transform 0.25s, box-shadow .25s; display: flex; flex-direction: column;
+    position: relative; overflow: hidden; min-width: 0;
+  }
+  .project-card::before {
+    content:''; position:absolute; inset:0; border-radius:12px; padding:1px;
+    background: linear-gradient(130deg, rgba(0,229,160,0.5), transparent 40%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    opacity: 0; transition: opacity .25s;
+    pointer-events: none; z-index: 0;
+  }
+  .project-card > * { position: relative; z-index: 1; }
+  .project-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -22px rgba(0,229,160,0.4); }
+  .project-card:hover::before { opacity: 1; }
+  .project-card.featured { border-color: rgba(0,229,160,0.2); }
+  .project-num { font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+  .proj-badge { font-size: 0.65rem; padding: 0.2rem 0.6rem; background: rgba(0,229,160,0.08); border: 1px solid rgba(0,229,160,0.2); border-radius: 20px; color: var(--accent); letter-spacing: 0.05em; white-space: nowrap; text-transform: none; }
+  .project-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.35; color: var(--text); margin-bottom: 0.75rem; }
+  .project-title a { color: inherit; text-decoration: none; transition: color 0.2s; cursor: none; }
+  .project-title a:hover { color: var(--accent); }
+  .project-desc { font-size: 0.875rem; color: var(--muted); line-height: 1.75; font-weight: 300; flex: 1; margin-bottom: 1.5rem; }
+  .project-desc strong { color: var(--text); font-weight: 500; }
+  .project-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .tag { font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.3rem 0.75rem; border: 1px solid var(--border); border-radius: 20px; color: var(--muted); }
+  .gh-link { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; color: var(--muted); text-decoration: none; margin-top: 1rem; transition: color 0.2s, gap .2s; cursor: none; }
+  .gh-link:hover { color: var(--accent); gap: 0.6rem; }
+
+  /* EXPERIENCE */
+  .exp-list { display: flex; flex-direction: column; margin-top: 1rem; }
+  .exp-item { display: grid; grid-template-columns: 220px 1fr; gap: 2rem; padding: 2.5rem 0; border-bottom: 1px solid var(--border); }
+  .exp-item > * { min-width: 0; }
+  .exp-item:last-child { border-bottom: none; }
+  .exp-period { font-size: 0.8rem; color: var(--muted); font-weight: 300; margin-bottom: 0.35rem; }
+  .exp-location { font-size: 0.75rem; color: var(--muted); opacity: 0.6; }
+  .exp-role { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text); margin-bottom: 0.2rem; }
+  .exp-company { font-size: 0.85rem; margin-bottom: 0.2rem; font-weight: 400; color: var(--accent2); }
+  .exp-company a { color: var(--accent2); text-decoration: none; transition: color 0.2s; cursor: none; }
+  .exp-company a:hover { color: var(--accent); }
+  .exp-company-desc { font-size: 0.78rem; color: var(--muted); margin-bottom: 1rem; font-weight: 300; font-style: italic; }
+  .exp-bullets { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; max-width: 760px; }
+  .exp-bullets li { font-size: 0.875rem; color: var(--muted); font-weight: 300; padding-left: 1.25rem; position: relative; line-height: 1.65; }
+  .exp-bullets li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-size: 0.75rem; top: 0.15rem; }
+
+  /* EDUCATION */
+  .edu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; max-width: 980px; }
+  .edu-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 1.75rem; transition: border-color 0.2s, transform .2s; min-width: 0; }
+  .edu-card:hover { border-color: rgba(123,97,255,0.3); transform: translateY(-3px); }
+  .edu-degree { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.35rem; letter-spacing: -0.01em; }
+  .edu-school { font-size: 0.85rem; color: var(--accent2); margin-bottom: 0.35rem; }
+  .edu-period { font-size: 0.78rem; color: var(--muted); }
+  .edu-grade { display: inline-block; margin-top: 0.75rem; padding: 0.2rem 0.7rem; background: rgba(0,229,160,0.08); border: 1px solid rgba(0,229,160,0.2); border-radius: 20px; font-size: 0.75rem; color: var(--accent); }
+  .edu-extra { margin-top: 3.5rem; display: flex; flex-direction: column; gap: 2.5rem; }
+  .certs-list { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .cert-item { font-size: 0.8rem; padding: 0.4rem 1rem; border: 1px solid rgba(0,229,160,0.2); background: rgba(0,229,160,0.04); border-radius: 20px; color: var(--muted); }
+  .cert-item span { color: var(--accent); font-weight: 500; }
+
+  /* PLAY / ANALYST DESK */
+  [hidden] { display: none !important; }
+  #play .play-head { text-align: center; max-width: 660px; margin: 0 auto 2.5rem; }
+  #play .section-label { justify-content: center; }
+  #play .section-label::before { content:''; width: 32px; height: 1px; background: var(--accent); }
+  #play .section-subtitle { margin: 0 auto; max-width: 600px; }
+  .game-wrap {
+    max-width: 920px; margin: 0 auto;
+    background: linear-gradient(180deg, rgba(21,21,31,0.95), rgba(13,13,21,0.95));
+    border: 1px solid rgba(0,229,160,0.2); border-radius: 16px;
+    padding: 1rem; position: relative;
+  }
+  .game-topbar {
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+    gap: 0.75rem 1rem; padding: 0.3rem 0.5rem 0.9rem;
+    font-family: var(--font-mono); font-size: 0.75rem;
+  }
+  .game-topbar .dots { display:flex; gap:6px; }
+  .game-topbar .dots i { width:10px; height:10px; border-radius:50%; display:inline-block; }
+  .mode-tabs { display: inline-flex; gap: 3px; padding: 3px; border: 1px solid var(--border); border-radius: 8px; background: rgba(255,255,255,0.02); }
+  .mode-tab {
+    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 0.4rem 0.95rem; border-radius: 6px; border: none; background: transparent; color: var(--muted);
+    cursor: pointer; transition: background .2s, color .2s;
+  }
+  .mode-tab:hover { color: var(--text); }
+  .mode-tab.active { background: rgba(0,229,160,0.12); color: var(--accent); }
+  .game-topbar .scoreboard { color: var(--muted); display:flex; gap:1.5rem; }
+  .game-topbar .scoreboard b { color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  .stage {
+    position: relative; border-radius: 10px; overflow: hidden; min-height: 452px;
+    background: radial-gradient(ellipse 120% 80% at 50% 120%, rgba(0,229,160,0.06), transparent 60%), #0a0a12;
+  }
+  .mode-panel { padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+  .hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+  .hud-tile, .result-tile { border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.75rem; background: var(--card); min-width: 0; text-align: left; }
+  .hud-label { display: block; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .hud-value { font-family: var(--font-mono); font-size: 1.05rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .hud-value.pos { color: var(--accent); }
+  .hud-value.neg { color: var(--accent3); }
+  .news {
+    display: flex; gap: 0.6rem; align-items: center; min-height: 2.3rem;
+    font-family: var(--font-mono); font-size: 0.78rem; color: var(--text);
+    border-left: 2px solid var(--accent2); border-radius: 0 6px 6px 0;
+    padding: 0.45rem 0.75rem; background: rgba(123,97,255,0.07);
+  }
+  .news-day { color: var(--accent2); white-space: nowrap; }
+  .news.flash { animation: newsflash .7s ease; }
+  @keyframes newsflash { from { background: rgba(123,97,255,0.4); } to { background: rgba(123,97,255,0.07); } }
+  #game-canvas { width: 100%; height: 250px; display: block; }
+  .pos-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+  .pos-btn {
+    font-family: var(--font-mono); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.05em;
+    min-height: 48px; padding: 0.7rem 0.5rem; border-radius: 8px; border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02); color: var(--muted); cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s, transform .1s;
+    -webkit-user-select: none; user-select: none; touch-action: manipulation;
+  }
+  .pos-btn:hover:not(:disabled) { color: var(--text); border-color: rgba(255,255,255,0.25); }
+  .pos-btn:active:not(:disabled) { transform: scale(0.98); }
+  .pos-btn:disabled { cursor: default; opacity: 0.75; }
+  .pos-btn kbd { font: inherit; font-weight: 400; font-size: 0.7rem; opacity: 0.55; margin-left: 0.45rem; }
+  .pos-btn.up.active, .pos-btn.correct { border-color: var(--accent); color: var(--accent); background: rgba(0,229,160,0.12); }
+  .pos-btn.mid.active { border-color: rgba(255,255,255,0.4); color: var(--text); background: rgba(255,255,255,0.08); }
+  .pos-btn.down.active, .pos-btn.wrong { border-color: var(--accent3); color: var(--accent3); background: rgba(255,93,143,0.12); }
+
+  .rc-head { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
+  .rc-ticker { font-family: var(--font-mono); font-weight: 700; font-size: 1.35rem; color: var(--accent); }
+  .rc-name { font-family: var(--font-display); font-weight: 600; color: var(--text); }
+  .rc-round { margin-left: auto; font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); }
+  .rc-method { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent2); letter-spacing: 0.04em; }
+  .rc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.6rem; }
+  .rc-grid .hud-tile { padding: 0.75rem 0.9rem; }
+  .rc-grid .hud-value { font-size: 1.45rem; }
+  .rc-grid .hud-tile.price { border-color: rgba(0,229,160,0.25); }
+  .rc-rule { font-size: 0.8rem; color: var(--muted); font-weight: 300; }
+  .rc-timer { height: 4px; border-radius: 2px; background: var(--border); overflow: hidden; }
+  .rc-timer i { display: block; height: 100%; width: 100%; background: var(--accent); transition: width .1s linear; }
+  .rc-feedback { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.4rem; font-size: 0.86rem; color: var(--muted); line-height: 1.55; }
+  .rc-feedback b { color: var(--text); font-weight: 500; }
+  .rc-feedback b.ok { color: var(--accent); }
+  .rc-feedback b.bad { color: var(--accent3); }
+  .rc-next { flex-shrink: 0; font-family: var(--font-mono); font-size: 0.72rem; padding: 0.45rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; }
+  .rc-next:hover { border-color: var(--accent); color: var(--accent); }
+
+  .game-overlay {
+    position: absolute; inset: 0; border-radius: 10px; z-index: 5;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem;
+    background: rgba(7,7,12,0.88); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+    text-align: center; padding: 2rem;
+  }
+  .game-overlay.hidden { display: none; }
+  .game-overlay h3 { font-family: var(--font-display); font-size: 1.55rem; line-height: 1.25; color: var(--text); letter-spacing: -0.02em; text-wrap: balance; }
+  .game-overlay p { color: var(--muted); font-size: 0.9rem; max-width: 470px; }
+  .game-overlay .keyhint { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+  .game-overlay .kbd { border: 1px solid var(--border); border-radius: 5px; padding: 0.1rem 0.5rem; color: var(--accent); }
+  .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 0.5rem; width: 100%; max-width: 620px; }
+  .game-btn {
+    margin-top: 0.5rem; padding: 0.75rem 2rem; background: var(--accent); color: var(--bg);
+    border: none; border-radius: 6px; font-family: var(--font-body); font-weight: 700; font-size: 0.95rem;
+    cursor: pointer; transition: transform .15s, box-shadow .15s; white-space: nowrap;
+  }
+  .game-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 26px -10px rgba(0,229,160,0.6); }
+  .game-legend {
+    display: flex; gap: 0.6rem 1.5rem; justify-content: center; flex-wrap: wrap;
+    margin-top: 1rem; font-size: 0.75rem; color: var(--muted); font-family: var(--font-mono);
+  }
+  .game-legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .game-legend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+  .game-note { text-align: center; margin-top: 0.6rem; font-size: 0.7rem; color: var(--muted); opacity: 0.7; }
+
+  /* CONTACT */
+  .contact-inner { max-width: 640px; background: var(--bg3); border: 1px solid var(--border); border-radius: 16px; padding: 3.5rem; margin-top: 2rem; }
+  .contact-lead { color: var(--muted); font-weight: 300; font-size: 0.95rem; line-height: 1.8; }
+  .contact-lead strong { color: var(--text); font-weight: 500; }
+  .email-line { display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; margin: 1.5rem 0 0.5rem; }
+  .contact-email { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--accent); text-decoration: none; letter-spacing: -0.02em; transition: opacity 0.2s; cursor: none; overflow-wrap: anywhere; user-select: all; }
+  .contact-email:hover { opacity: 0.75; }
+  .copy-btn {
+    font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 0.3rem 0.7rem; border-radius: 20px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); cursor: none; transition: border-color .2s, color .2s;
+  }
+  .copy-btn:hover, .copy-btn.done { border-color: var(--accent); color: var(--accent); }
+  .contact-meta { color: var(--muted); font-size: 0.82rem; }
+  .contact-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 2rem; }
+  .contact-row .btn-primary, .contact-row .btn-outline { padding: 0.8rem 1.4rem; }
+
+  footer { padding: 2rem 4rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; font-size: 0.8rem; color: var(--muted); background: rgba(7,7,12,0.72); }
+  .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+  .footer-links a { color: var(--muted); text-decoration: none; transition: color .2s; cursor: none; }
+  .footer-links a:hover { color: var(--accent); }
+
+  /* Reveals only hide content once the script has confirmed it can show it again */
+  .js .fade-in { opacity: 0; transform: translateY(28px); transition: opacity 0.7s cubic-bezier(.2,.7,.2,1), transform 0.7s cubic-bezier(.2,.7,.2,1); }
+  .js .fade-in.visible { opacity: 1; transform: none; }
+  .js .stagger > * { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+  .js .stagger.visible > * { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .js .fade-in, .js .stagger > * { opacity: 1; transform: none; transition: none; }
+    .ticker-track, .hero-eyebrow .pulse, .hero-role .type-cursor { animation: none; }
+  }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(var(--accent), var(--accent2)); border-radius: 2px; }
+
+  /* MOBILE MENU */
+  .nav-toggle {
+    display: none; background: none; border: none; cursor: pointer;
+    width: 40px; height: 40px; padding: 6px; position: relative; z-index: 120; flex-shrink: 0;
+  }
+  .nav-toggle span {
+    display: block; width: 100%; height: 2px; background: var(--text);
+    border-radius: 2px; transition: transform .3s, opacity .3s; margin: 5px 0;
+  }
+  .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .nav-backdrop { display: none; }
+
+  /* TABLET */
+  @media (max-width: 1024px) {
+    nav { padding-left: 2rem; padding-right: 2rem; }
+    section { padding: 5rem 2rem; }
+    #hero { padding: 8rem 2rem 4rem; }
+    .about-grid { gap: 3rem; }
+    footer { padding: 2rem; }
+  }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    :root { --nav-h: 54px; }
+    html { font-size: 15px; }
+    body { cursor: auto; }
+    #cursor, #cursor-dot { display: none !important; }
+    a, button, .btn-primary, .btn-outline, .link-pill, .gh-link,
+    .project-title a, .exp-company a, .contact-email, .game-btn, .copy-btn, .footer-links a { cursor: pointer; }
+
+    nav { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .nav-logo { font-size: 1rem; }
+    .nav-toggle { display: flex; flex-direction: column; justify-content: center; }
+
+    .nav-links {
+      position: fixed; top: 0; right: 0; bottom: 0; left: auto;
+      width: 75vw; max-width: 280px;
+      flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 0;
+      background: var(--drawer);
+      border-left: 1px solid rgba(0,229,160,0.2);
+      padding: calc(70px + var(--safe-top)) 1.5rem 2rem;
+      transform: translateX(110%);
+      transition: transform .3s ease;
+      z-index: 110; list-style: none; overflow-y: auto;
+    }
+    .nav-links.open { transform: translateX(0); }
+    .nav-links li { width: 100%; }
+    .nav-links a {
+      display: block; width: 100%; padding: 1rem 0;
+      font-size: 1rem; font-weight: 500;
+      color: var(--text) !important;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .nav-links a:not(.nav-cta)::after { display: none; }
+    .nav-links a.nav-cta {
+      margin-top: 1.5rem; text-align: center;
+      border: 1px solid var(--accent) !important; border-radius: 6px;
+      padding: 0.85rem 1rem; color: var(--accent) !important;
+    }
+    .nav-backdrop {
+      display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      opacity: 0; pointer-events: none; transition: opacity .3s; z-index: 105;
+    }
+    .nav-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    .ticker-bar { height: 28px; }
+    .ticker-item { font-size: 0.62rem; padding: 0 0.75rem; }
+
+    section { padding: 3.5rem 1.25rem; }
+    #hero { padding: 6.5rem 1.25rem 3rem; min-height: auto; }
+    .hero-eyebrow { font-size: 0.68rem; letter-spacing: 0.08em; align-items: flex-start; line-height: 1.5; }
+    .hero-eyebrow::before { margin-top: 0.5em; width: 20px; }
+    .hero-eyebrow .pulse { margin-top: 0.3em; }
+    .hero-desc { font-size: 0.95rem; margin-bottom: 2rem; }
+    .hero-actions { gap: 0.75rem; }
+    .btn-primary, .btn-outline { flex: 1; text-align: center; padding: 0.85rem 1rem; min-width: 0; }
+    .hero-stats { gap: 1.25rem 2rem; margin-top: 2.5rem; padding-top: 2rem; }
+    .stat-num { font-size: 1.6rem; }
+
+    .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .skills-grid { grid-template-columns: 1fr 1fr; }
+    .about-links { gap: 0.6rem; }
+
+    .projects-grid { grid-template-columns: 1fr; gap: 1rem; }
+    .project-card { padding: 1.5rem; }
+
+    .exp-item { grid-template-columns: 1fr; gap: 0.4rem; padding: 1.75rem 0; }
+    .exp-left { display: flex; flex-direction: row; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .exp-period { margin-bottom: 0; font-size: 0.78rem; }
+    .exp-location { font-size: 0.72rem; }
+
+    .edu-grid { grid-template-columns: 1fr; }
+
+    .game-wrap { padding: 0.75rem; border-radius: 14px; border: 1px solid rgba(0,229,160,0.25); background: #0d0d16; }
+    .game-topbar { font-size: 0.65rem; padding: 0.25rem 0.25rem 0.7rem; }
+    .game-topbar .dots { display: none; }
+    .mode-tabs { width: 100%; }
+    .mode-tab { flex: 1; padding: 0.55rem 0.5rem; }
+    .game-topbar .scoreboard { width: 100%; justify-content: space-between; gap: 0.75rem; }
+    .stage { min-height: 430px; }
+    .mode-panel { padding: 0.75rem; }
+    .hud { grid-template-columns: 1fr 1fr; }
+    .news { font-size: 0.7rem; align-items: flex-start; }
+    #game-canvas { height: 190px; }
+    .pos-btn { font-size: 0.8rem; min-height: 54px; }
+    .pos-btn kbd { display: none; }
+    .rc-grid .hud-value { font-size: 1.2rem; }
+    .rc-feedback { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    .game-overlay { border-radius: 10px; padding: 1.25rem 1rem; gap: 0.6rem; }
+    .game-overlay h3 { font-size: 1.15rem; line-height: 1.3; }
+    .game-overlay p { font-size: 0.8rem; line-height: 1.5; max-width: 100%; }
+    .game-overlay .game-btn { padding: 0.75rem 2rem; font-size: 0.9rem; margin-top: 0.3rem; }
+    .game-overlay .keyhint { display: none; }
+    .result-grid { grid-template-columns: 1fr 1fr; }
+    .game-legend { gap: 0.4rem 0.9rem; font-size: 0.62rem; margin-top: 0.65rem; }
+
+    footer { flex-direction: column; gap: 0.75rem; text-align: center; padding: 2rem 1.25rem; }
+    .footer-links { justify-content: center; }
+    .contact-inner { padding: 1.75rem; }
+    .contact-email { font-size: 1.1rem; }
+    .contact-row { flex-direction: column; }
+    .contact-row .btn-primary, .contact-row .btn-outline { text-align: center; }
+  }
+
+  /* SMALL PHONES */
+  @media (max-width: 400px) {
+    .skills-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 1rem 1.5rem; }
+    .hero-actions { flex-direction: column; }
+    .btn-primary, .btn-outline { width: 100%; }
+    .exp-left { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+  }
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js');</script>
+
+<canvas id="flow-canvas" aria-hidden="true"></canvas>
+<div class="page-veil"></div>
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+
+<nav>
+  <a href="#hero" class="nav-logo">KK<span>.</span></a>
+  <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about">About</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#play">Play</a></li>
+    <li><a href="#contact" class="nav-cta">Contact</a></li>
+  </ul>
+</nav>
+<div class="nav-backdrop" id="navBackdrop"></div>
+
+<div class="ticker-bar" aria-hidden="true">
+  <div class="ticker-track" id="ticker"></div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-content">
+    <p class="hero-eyebrow"><span class="pulse"></span>Open to financial analyst, equity research &amp; IB roles · Ireland &amp; EU</p>
+    <h1 class="hero-name">Karan Krishnan</h1>
+    <p class="hero-role"><span id="typed">Financial Analyst</span><span class="type-cursor">▌</span></p>
+    <p class="hero-desc">
+      MSc Finance at UCD Michael Smurfit Graduate Business School, with a first-class B.Com in Accounting &amp; Finance. I build equity valuation models, Python risk frameworks and empirical M&amp;A research, and I like checking whether the number survives the data. Based in Dublin, Ireland.
+    </p>
+    <div class="hero-actions">
+      <a href="#projects" class="btn-primary">View My Work</a>
+      <a href="#contact" class="btn-outline">Get In Touch</a>
+    </div>
+    <div class="hero-stats">
+      <div><span class="stat-num" data-count="779">779</span><span class="stat-label">M&amp;A deals studied</span></div>
+      <div><span class="stat-num" data-count="8">8</span><span class="stat-label">VaR / ES models backtested</span></div>
+      <div><span class="stat-num">6th / 28</span><span class="stat-label">Trading simulation</span></div>
+      <div><span class="stat-num">2:1</span><span class="stat-label">MSc Finance</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="fade-in">
+    <p class="section-label">About Me</p>
+    <h2 class="section-title">Put a number on it.<br>Then test the number.</h2>
+  </div>
+  <div class="about-grid fade-in">
+    <div class="about-text">
+      <p>I studied the <strong>MSc Finance at UCD Michael Smurfit Graduate Business School</strong> (2:1) after a <strong>first-class B.Com in Accounting &amp; Finance</strong> from SRM Institute of Science &amp; Humanities in Chennai. Most of my work sits where valuation, risk and econometrics meet. I build the model first and then check how well it holds up against the data.</p>
+      <p>On the MSc I valued Air Products &amp; Chemicals with a full <strong>FCFF/DCF and trading-comps model</strong> on Bloomberg data, wrote a <strong>1,845-line Python framework</strong> that backtests eight VaR and Expected Shortfall models on the DJIA, and replicated an information-asymmetry study across <strong>779 US M&amp;A deals</strong> in Python and Stata.</p>
+      <p>I now work as <strong>Business Development Manager at Relocate to Ireland</strong>, where I built the company's first pricing model. Before the MSc I spent a year in finance operations at ABART Enterprises in Chennai, working on monthly P&amp;L, reconciliations and the AR/AP cycle. I am <strong>SAP FICO and Tally certified</strong>, based in <strong>Dublin</strong>, and open to <strong>Financial Analyst, Equity Research and Investment Banking roles</strong> in Ireland and across the EU. I speak English, Tamil, Hindi and Malayalam.</p>
+      <div class="about-links">
+        <a href="https://linkedin.com/in/karankrishnan1411" target="_blank" rel="noopener" class="link-pill">↗ LinkedIn</a>
+        <a href="https://www.instagram.com/kaarannnn__/" target="_blank" rel="noopener" class="link-pill" data-instagram>↗ Instagram</a>
+        <a href="https://github.com/karankk14112003-bot" target="_blank" rel="noopener" class="link-pill">↗ GitHub</a>
+        <a href="mailto:karankk14112003@gmail.com" class="link-pill">✉ Gmail</a>
+      </div>
+    </div>
+    <div>
+      <div class="skills-grid stagger">
+        <div class="skill-card"><div class="skill-icon">📈</div><div class="skill-name">Equity Valuation</div><div class="skill-desc">DCF / FCFF, trading and transaction comps, financial statement analysis</div></div>
+        <div class="skill-card"><div class="skill-icon">🛡️</div><div class="skill-name">Risk Modelling</div><div class="skill-desc">VaR, Expected Shortfall, EVT, GARCH, Monte Carlo simulation</div></div>
+        <div class="skill-card"><div class="skill-icon">🐍</div><div class="skill-name">Python</div><div class="skill-desc">pandas, NumPy, statsmodels, arch</div></div>
+        <div class="skill-card"><div class="skill-icon">📊</div><div class="skill-name">Econometrics</div><div class="skill-desc">OLS and probit regression, ARIMA time series, Stata</div></div>
+        <div class="skill-card"><div class="skill-icon">⚖️</div><div class="skill-name">Portfolio Analytics</div><div class="skill-desc">Mean-variance optimisation, Jensen's alpha, Fama-French regressions</div></div>
+        <div class="skill-card"><div class="skill-icon">📑</div><div class="skill-name">Excel Modelling</div><div class="skill-desc">Advanced Excel, pricing models, margin structures, integrity checks</div></div>
+        <div class="skill-card"><div class="skill-icon">🖥️</div><div class="skill-name">Bloomberg Terminal</div><div class="skill-desc">Market and company data for valuation and comps</div></div>
+        <div class="skill-card"><div class="skill-icon">🏦</div><div class="skill-name">Finance Operations</div><div class="skill-desc">SAP FICO, Tally ERP, reconciliations, journal entries, AR/AP</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="fade-in">
+    <p class="section-label">Academic Projects</p>
+    <h2 class="section-title">Things I've built.</h2>
+    <p class="section-subtitle">Six projects from the MSc covering equity valuation, market risk, M&amp;A econometrics and portfolio analytics, built in Excel, Python, Stata and Bloomberg.</p>
+  </div>
+  <div class="projects-grid stagger">
+    <div class="project-card featured">
+      <div class="project-num">Equity Asset Valuation <span class="proj-badge">Featured</span></div>
+      <h3 class="project-title">Air Products &amp; Chemicals (APD): DCF &amp; Comparable-Company Valuation</h3>
+      <p class="project-desc">Full FCFF/DCF and trading-comps model built in Excel on Bloomberg data. Derived a <strong>$228 blended target price</strong> and issued a <strong>HOLD/SELL</strong> call anchored on the NEOM hydrogen growth thesis.</p>
+      <div class="project-tags"><span class="tag">Excel</span><span class="tag">Bloomberg</span><span class="tag">DCF / FCFF</span><span class="tag">Comps</span></div>
+    </div>
+    <div class="project-card featured">
+      <div class="project-num">Empirical Finance <span class="proj-badge">Featured</span></div>
+      <h3 class="project-title">M&amp;A Information Asymmetry: Empirical Study of 779 US Deals</h3>
+      <p class="project-desc">Replicated Huang et al. on <strong>779 M&amp;A transactions</strong> in Python and Stata. Ran OLS and probit regressions on bidder returns and target premia to test information-asymmetry hypotheses.</p>
+      <div class="project-tags"><span class="tag">Python</span><span class="tag">Stata</span><span class="tag">OLS</span><span class="tag">Probit</span><span class="tag">M&amp;A</span></div>
+    </div>
+    <div class="project-card featured">
+      <div class="project-num">Portfolio &amp; Risk Management <span class="proj-badge">Featured</span></div>
+      <h3 class="project-title">DJIA Value-at-Risk &amp; Expected Shortfall Backtesting</h3>
+      <p class="project-desc">Authored a <strong>1,845-line Python framework</strong> testing <strong>8 VaR/ES models</strong> (parametric, historical, EVT, GARCH) with Kupiec, Christoffersen and McNeil–Frey backtests, following an FRTB-aligned methodology.</p>
+      <div class="project-tags"><span class="tag">Python</span><span class="tag">VaR / ES</span><span class="tag">GARCH</span><span class="tag">EVT</span><span class="tag">FRTB</span></div>
+    </div>
+    <div class="project-card">
+      <div class="project-num">Equity Asset Valuation <span class="proj-badge">Group project</span></div>
+      <h3 class="project-title">Equity Trading Simulation</h3>
+      <p class="project-desc">Finished <strong>6th of 28 groups</strong>. Grew the CAR portfolio from <strong>$90 to $700</strong> through active long/short positioning, including pre-emptive shorts ahead of the Iran–US escalation.</p>
+      <div class="project-tags"><span class="tag">Long / Short</span><span class="tag">Portfolio</span><span class="tag">Macro</span></div>
+    </div>
+    <div class="project-card">
+      <div class="project-num">Financial Econometrics <span class="proj-badge">Published</span></div>
+      <h3 class="project-title"><a href="https://github.com/karankk14112003-bot" target="_blank" rel="noopener">BSE Sensex &amp; IIP Time-Series Study</a></h3>
+      <p class="project-desc">ARIMA modelling of Indian industrial production and Sensex returns with serial-correlation correction. Code and paper published on GitHub and LinkedIn.</p>
+      <div class="project-tags"><span class="tag">ARIMA</span><span class="tag">Time Series</span><span class="tag">India</span></div>
+      <a href="https://github.com/karankk14112003-bot" target="_blank" rel="noopener" class="gh-link">↗ View on GitHub</a>
+    </div>
+    <div class="project-card">
+      <div class="project-num">Portfolio &amp; Risk Management <span class="proj-badge">Asset management</span></div>
+      <h3 class="project-title">Efficient Frontiers &amp; Mutual Fund Alpha</h3>
+      <p class="project-desc">Constructed mean-variance efficient frontiers and evaluated mutual fund performance. Identified <strong>statistically significant alpha in FCNTX and DODGX</strong> via Jensen and Fama-French regressions.</p>
+      <div class="project-tags"><span class="tag">Mean-Variance</span><span class="tag">Jensen's Alpha</span><span class="tag">Fama-French</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="fade-in">
+    <p class="section-label">Work Experience</p>
+    <h2 class="section-title">Where I've worked.</h2>
+  </div>
+  <div class="exp-list fade-in">
+    <div class="exp-item">
+      <div class="exp-left">
+        <div class="exp-period">Sep 2026 – Present</div>
+        <div class="exp-location">Co. Carlow, Ireland</div>
+      </div>
+      <div>
+        <div class="exp-role">Business Development Manager</div>
+        <div class="exp-company"><a href="https://relocatetoireland.ie" target="_blank" rel="noopener">Relocate to Ireland</a></div>
+        <div class="exp-company-desc">Relocation and home-setup services for individuals, families and businesses moving to Ireland.</div>
+        <ul class="exp-bullets">
+          <li>Built the company's first pricing model: an eight-sheet Excel system costing delivery hours, travel and consumables by property size, with margin floors, property-size rate structures and self-validating integrity checks.</li>
+          <li>Found that a flat margin caused gross margin per delivery hour to fall as jobs grew, then designed a size-scaled margin ladder that reversed the trend across the full range.</li>
+          <li>Scored routes to market and built named target lists from Department of Enterprise employment-permit data and the PSRA licensed-agent register, identifying the permit types that signal a family relocation and a furnished-home requirement.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-left">
+        <div class="exp-period">May 2024 – Apr 2025</div>
+        <div class="exp-location">Chennai, India</div>
+      </div>
+      <div>
+        <div class="exp-role">Finance Project Trainee</div>
+        <div class="exp-company">ABART Enterprises India Pvt Ltd</div>
+        <div class="exp-company-desc">Event management firm working on corporate and government engagements.</div>
+        <ul class="exp-bullets">
+          <li>Prepared and reviewed monthly P&amp;L and balance-sheet statements, and ran reconciliations and journal entries to maintain general-ledger accuracy.</li>
+          <li>Owned the AR/AP cycle including invoicing, payment tracking and vendor settlements, and supported event budgeting across corporate and government engagements.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-left">
+        <div class="exp-period">Sep 2022 – Apr 2024</div>
+        <div class="exp-location">Chennai, India</div>
+      </div>
+      <div>
+        <div class="exp-role">Chief Editor / Designer</div>
+        <div class="exp-company">SRM College Cultural Fest “ATHLON”</div>
+        <ul class="exp-bullets" style="margin-top:0.8rem;">
+          <li>Led the campus design team across two terms using Adobe Photoshop and Illustrator to deliver event creative on schedule.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="fade-in">
+    <p class="section-label">Education</p>
+    <h2 class="section-title">Academic background.</h2>
+  </div>
+  <div class="edu-grid stagger">
+    <div class="edu-card">
+      <div class="edu-degree">MSc Finance</div>
+      <div class="edu-school">UCD Michael Smurfit Graduate Business School, Dublin</div>
+      <div class="edu-period">Aug 2025 – Sep 2026</div>
+      <div class="edu-grade">Second Class (2:1) · GPA 3.11 / 4.2</div>
+    </div>
+    <div class="edu-card">
+      <div class="edu-degree">B.Com (Accounting &amp; Finance)</div>
+      <div class="edu-school">SRM Institute of Science &amp; Humanities, Chennai</div>
+      <div class="edu-period">Sep 2021 – Jun 2024</div>
+      <div class="edu-grade">First Class · GPA 7.33 / 10</div>
+    </div>
+  </div>
+  <div class="edu-extra fade-in">
+    <div>
+      <p class="section-label">Selected MSc Modules</p>
+      <div class="certs-list">
+        <span class="cert-item">Equity Asset Valuation</span>
+        <span class="cert-item">Empirical Finance</span>
+        <span class="cert-item">Financial Econometrics</span>
+        <span class="cert-item">Portfolio &amp; Risk Management</span>
+        <span class="cert-item">Capital Markets</span>
+      </div>
+    </div>
+    <div>
+      <p class="section-label">Certifications</p>
+      <div class="certs-list">
+        <span class="cert-item"><span>SAP</span> — FICO (Financial Accounting &amp; Controlling)</span>
+        <span class="cert-item"><span>Tally</span> — Tally ERP</span>
+      </div>
+    </div>
+    <div>
+      <p class="section-label">Languages</p>
+      <div class="certs-list">
+        <span class="cert-item"><span>English</span> — Native</span>
+        <span class="cert-item"><span>Tamil</span> — Native</span>
+        <span class="cert-item"><span>Hindi</span> — Intermediate</span>
+        <span class="cert-item"><span>Malayalam</span> — Intermediate</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLAY / ANALYST DESK -->
+<section id="play">
+  <div class="play-head fade-in">
+    <p class="section-label">Take a break</p>
+    <h2 class="section-title">Analyst Desk</h2>
+    <p class="section-subtitle">Two quick games from the day job. Trade one year of a stock and try to beat <strong style="color:var(--text);font-weight:500">buy-and-hold</strong>, or work out fair value and make eight <strong style="color:var(--text);font-weight:500">Buy / Hold / Sell</strong> calls against the clock.</p>
+  </div>
+
+  <div class="game-wrap fade-in" id="desk">
+    <div class="game-topbar">
+      <div class="dots"><i style="background:#ff5d5d"></i><i style="background:#ffce4f"></i><i style="background:#3ee07a"></i></div>
+      <div class="mode-tabs" role="tablist" aria-label="Choose a game">
+        <button class="mode-tab active" type="button" role="tab" aria-selected="true" aria-controls="panelTrade" id="tabTrade" data-mode="trade">Trading Desk</button>
+        <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="panelRate" id="tabRate" data-mode="rate">Rating Call</button>
+      </div>
+      <div class="scoreboard">
+        <span><span id="scoreLabel">ALPHA (BPS)</span>: <b id="score">0</b></span>
+        <span>BEST: <b id="best">–</b></span>
+      </div>
+    </div>
+
+    <div class="stage">
+      <!-- Mode 1: trade a year against buy-and-hold -->
+      <div class="mode-panel" id="panelTrade" role="tabpanel" aria-labelledby="tabTrade">
+        <div class="hud">
+          <div class="hud-tile"><span class="hud-label">Your return</span><span class="hud-value" id="hudYou">0.0%</span></div>
+          <div class="hud-tile"><span class="hud-label">Buy &amp; hold</span><span class="hud-value" id="hudBh">0.0%</span></div>
+          <div class="hud-tile"><span class="hud-label">Alpha</span><span class="hud-value" id="hudAlpha">0 bps</span></div>
+          <div class="hud-tile"><span class="hud-label">Trading day</span><span class="hud-value" id="hudDay">0 / 250</span></div>
+        </div>
+        <div class="news" id="news" aria-live="polite"><span class="news-day" id="newsDay">NEWS</span><span id="newsText">Headlines land here. Read them before you trade.</span></div>
+        <div class="canvas-shell"><canvas id="game-canvas" role="img" aria-label="Price chart of the stock against your portfolio"></canvas></div>
+        <div class="pos-controls" role="group" aria-label="Your position">
+          <button class="pos-btn up" type="button" data-pos="1" aria-pressed="false">▲ LONG<kbd>↑</kbd></button>
+          <button class="pos-btn mid active" type="button" data-pos="0" aria-pressed="true">■ FLAT<kbd>Space</kbd></button>
+          <button class="pos-btn down" type="button" data-pos="-1" aria-pressed="false">▼ SHORT<kbd>↓</kbd></button>
+        </div>
+      </div>
+
+      <!-- Mode 2: value the stock, make the call -->
+      <div class="mode-panel" id="panelRate" role="tabpanel" aria-labelledby="tabRate" hidden>
+        <div class="rc-head">
+          <span class="rc-ticker" id="rcTicker">LFRB</span>
+          <span class="rc-name" id="rcName">Liffey Robotics</span>
+          <span class="rc-round" id="rcRound">Call 1 / 8</span>
+        </div>
+        <div class="rc-method" id="rcMethod">GORDON GROWTH DCF</div>
+        <div class="rc-grid" id="rcGrid">
+          <div class="hud-tile price"><span class="hud-label">Share price</span><span class="hud-value">$32.00</span></div>
+          <div class="hud-tile"><span class="hud-label">FCF / share, next year</span><span class="hud-value">$2.00</span></div>
+          <div class="hud-tile"><span class="hud-label">WACC</span><span class="hud-value">8%</span></div>
+          <div class="hud-tile"><span class="hud-label">Growth, perpetual</span><span class="hud-value">3%</span></div>
+        </div>
+        <p class="rc-rule">Rating rule: BUY if upside to fair value is above +10%, SELL if it is below −10%, otherwise HOLD.</p>
+        <div class="rc-timer" aria-hidden="true"><i id="rcBar"></i></div>
+        <div class="pos-controls" role="group" aria-label="Your rating">
+          <button class="pos-btn call-btn" type="button" data-call="BUY">BUY<kbd>B</kbd></button>
+          <button class="pos-btn call-btn" type="button" data-call="HOLD">HOLD<kbd>H</kbd></button>
+          <button class="pos-btn call-btn" type="button" data-call="SELL">SELL<kbd>S</kbd></button>
+        </div>
+        <div class="rc-feedback" aria-live="polite"><span id="rcFeedback"></span><button class="rc-next" id="rcNext" type="button" hidden>Next →</button></div>
+      </div>
+
+      <div class="game-overlay" id="overlay">
+        <h3 id="overlayTitle">One trading year. Beat buy-and-hold.</h3>
+        <p id="overlayText">A stock trades for 250 days. Go long, flat or short as the headlines land. Headlines usually signal what comes next, but not always. Trading costs 10 bps each way, and your score is the alpha you make over simply holding the stock.</p>
+        <div class="result-grid" id="overlayStats" hidden></div>
+        <button class="game-btn" id="start-btn" type="button">▶ Open the Market</button>
+        <p class="keyhint" id="overlayHint"><span class="kbd">↑</span> long · <span class="kbd">Space</span> flat · <span class="kbd">↓</span> short</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-legend" id="legendTrade">
+    <span><i style="background:#00e5a0"></i> Stock while you are long</span>
+    <span><i style="background:#ff5d8f"></i> While short</span>
+    <span><i style="background:#8a8a9a"></i> While flat</span>
+    <span><i style="background:#7b61ff"></i> Your portfolio</span>
+  </div>
+  <div class="game-legend" id="legendRate" hidden>
+    <span>DCF: fair value = FCF ÷ (WACC − g)</span>
+    <span>Comps: fair value = EPS × peer P/E</span>
+  </div>
+  <p class="game-note">Companies, prices and headlines are made up for the game.</p>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="fade-in">
+    <p class="section-label">Contact</p>
+    <h2 class="section-title">Let's talk.</h2>
+  </div>
+  <div class="contact-inner fade-in">
+    <p class="contact-lead">Open to <strong>Financial Analyst, Equity Research and Investment Banking roles</strong> in Ireland and across the EU. If you have an opening, or you just want to argue about a valuation, send me a message.</p>
+    <div class="email-line">
+      <a href="mailto:karankk14112003@gmail.com" class="contact-email" id="emailText">karankk14112003@gmail.com</a>
+      <button class="copy-btn" id="copyEmail" type="button">Copy</button>
+    </div>
+    <p class="contact-meta">Dublin, Ireland</p>
+    <div class="contact-row">
+      <a href="https://linkedin.com/in/karankrishnan1411" target="_blank" rel="noopener" class="btn-primary">LinkedIn →</a>
+      <a href="https://www.instagram.com/kaarannnn__/" target="_blank" rel="noopener" class="btn-outline" data-instagram>Instagram →</a>
+      <a href="https://github.com/karankk14112003-bot" target="_blank" rel="noopener" class="btn-outline">GitHub →</a>
+      <a href="mailto:karankk14112003@gmail.com" class="btn-outline">Gmail →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Karan Krishnan</span>
+  <span class="footer-links">
+    <a href="https://linkedin.com/in/karankrishnan1411" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://www.instagram.com/kaarannnn__/" target="_blank" rel="noopener" data-instagram>Instagram</a>
+    <a href="https://github.com/karankk14112003-bot" target="_blank" rel="noopener">GitHub</a>
+    <a href="mailto:karankk14112003@gmail.com">Gmail</a>
+  </span>
+  <span>Dublin, Ireland · MSc Finance, UCD Smurfit</span>
+</footer>
+
+<script>
+/* ============ INSTAGRAM HANDLE ============
+   Put the Instagram username between the quotes (no @) and every
+   Instagram link on the page points to that profile. */
+const INSTAGRAM_HANDLE = 'kaarannnn__';
+(function () {
+  const handle = INSTAGRAM_HANDLE.trim().replace(/^@/, '');
+  if (!handle) return;
+  document.querySelectorAll('[data-instagram]').forEach(a => {
+    a.href = 'https://www.instagram.com/' + encodeURIComponent(handle) + '/';
+  });
+})();
+
+/* ============ FLOW FIELD BACKGROUND ============ */
+(function () {
+  const canvas = document.getElementById('flow-canvas');
+  const ctx = canvas.getContext('2d');
+  let w, h, particles = [], t = 0;
+  const COLORS = ['rgba(0,229,160,', 'rgba(123,97,255,', 'rgba(255,93,143,'];
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    const isMobile = w < 768;
+    const divisor = isMobile ? 26000 : 14000;
+    const cap = isMobile ? 60 : 140;
+    const count = Math.min(cap, Math.floor((w * h) / divisor));
+    particles = [];
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * w, y: Math.random() * h,
+        c: COLORS[Math.floor(Math.random() * COLORS.length)],
+        a: 0.10 + Math.random() * 0.25, s: 0.4 + Math.random() * 0.9
+      });
+    }
+  }
+  function field(x, y) {
+    const sc = 0.0016;
+    return (Math.sin(x * sc + t) + Math.cos(y * sc - t * 0.7) + Math.sin((x + y) * sc * 0.5 + t * 0.3)) * 1.1;
+  }
+  function draw() {
+    ctx.fillStyle = 'rgba(7,7,12,0.10)';
+    ctx.fillRect(0, 0, w, h);
+    for (const p of particles) {
+      const ang = field(p.x, p.y) * Math.PI;
+      p.x += Math.cos(ang) * p.s;
+      p.y += Math.sin(ang) * p.s;
+      if (p.x < 0 || p.x > w || p.y < 0 || p.y > h) {
+        p.x = Math.random() * w; p.y = Math.random() * h;
+      }
+      ctx.beginPath();
+      ctx.fillStyle = p.c + p.a + ')';
+      ctx.arc(p.x, p.y, 1.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    t += 0.0016;
+    requestAnimationFrame(draw);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  if (!reduce) draw();
+  else { ctx.fillStyle = '#07070c'; ctx.fillRect(0, 0, w, h); }
+})();
+
+/* ============ TICKER ============ */
+(function () {
+  // [symbol, direction, detail]
+  const items = [
+    ['APD', 'down', 'Target $228 · HOLD/SELL'],
+    ['M&A', 'up', '779 US deals · OLS & probit'],
+    ['DJIA', 'up', '8 VaR/ES models backtested'],
+    ['TRADING SIM', 'up', '6th of 28 groups'],
+    ['SENSEX × IIP', 'up', 'ARIMA study published'],
+    ['FCNTX · DODGX', 'up', 'Significant alpha'],
+    ['PYTHON', 'up', '1,845-line risk framework'],
+    ['SAP FICO', 'up', 'Certified'],
+    ['TALLY', 'up', 'Certified'],
+    ['UCD SMURFIT', 'up', 'MSc Finance · 2:1']
+  ];
+  const esc = s => s.replace(/&/g, '&amp;');
+  const block = items.map(([k, dir, v]) =>
+    `<span class="ticker-item"><b>${esc(k)}</b> <span class="${dir}">${dir === 'up' ? '▲' : '▼'}</span> ${esc(v)}</span><span class="ticker-sep">|</span>`
+  ).join('');
+  document.getElementById('ticker').innerHTML = block + block;
+})();
+
+/* ============ TYPED ROLE ============ */
+(function () {
+  const roles = ['Financial Analyst', 'Equity Research', 'Valuation & Modelling', 'Risk Modelling', 'Investment Banking'];
+  const el = document.getElementById('typed');
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // Starts fully typed so the first frame already reads correctly.
+  let ri = 0, ci = roles[0].length, deleting = true;
+  function tick() {
+    const word = roles[ri];
+    el.textContent = deleting ? word.slice(0, ci--) : word.slice(0, ci++);
+    let delay = deleting ? 45 : 90;
+    if (!deleting && ci > word.length) { deleting = true; delay = 1400; }
+    else if (deleting && ci < 0) { deleting = false; ci = 0; ri = (ri + 1) % roles.length; delay = 350; }
+    setTimeout(tick, delay);
+  }
+  setTimeout(tick, 1800);
+})();
+
+/* ============ COUNT-UP STATS ============ */
+(function () {
+  if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  function animate(el) {
+    const target = el.getAttribute('data-count');
+    if (!/^\d+$/.test(target)) { el.textContent = target; return; }
+    const end = parseInt(target, 10); let cur = 0;
+    const step = Math.max(1, Math.floor(end / 30));
+    const id = setInterval(() => {
+      cur += step;
+      if (cur >= end) { cur = end; clearInterval(id); }
+      el.textContent = cur.toLocaleString('en-IE');
+    }, 35);
+  }
+  const obs = new IntersectionObserver((e) => {
+    e.forEach(en => { if (en.isIntersecting) { animate(en.target); obs.unobserve(en.target); } });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('[data-count]').forEach(el => obs.observe(el));
+})();
+
+/* ============ SCROLL REVEALS ============ */
+(function () {
+  const targets = document.querySelectorAll('.fade-in, .stagger');
+  if (!('IntersectionObserver' in window)) { targets.forEach(el => el.classList.add('visible')); return; }
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        if (e.target.classList.contains('stagger')) {
+          [...e.target.children].forEach((c, i) => c.style.transitionDelay = (i * 60) + 'ms');
+        }
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+  targets.forEach(el => obs.observe(el));
+})();
+
+/* ============ CUSTOM CURSOR ============ */
+(function () {
+  if (window.matchMedia('(hover: none)').matches) return;
+  const ring = document.getElementById('cursor');
+  const dot = document.getElementById('cursor-dot');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  window.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
+  });
+  function loop() {
+    rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18;
+    ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+    requestAnimationFrame(loop);
+  }
+  loop();
+  document.querySelectorAll('a, button, [data-cursor]').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('grow'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('grow'));
+  });
+})();
+
+/* ============ MOBILE MENU ============ */
+(function () {
+  const toggle = document.getElementById('navToggle');
+  const links = document.getElementById('navLinks');
+  const backdrop = document.getElementById('navBackdrop');
+  if (!toggle) return;
+  function close() {
+    toggle.classList.remove('open');
+    links.classList.remove('open');
+    backdrop.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Open menu');
+    document.body.style.overflow = '';
+  }
+  function open() {
+    toggle.classList.add('open');
+    links.classList.add('open');
+    backdrop.classList.add('open');
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.setAttribute('aria-label', 'Close menu');
+    document.body.style.overflow = 'hidden';
+  }
+  toggle.addEventListener('click', () => links.classList.contains('open') ? close() : open());
+  backdrop.addEventListener('click', close);
+  links.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+})();
+
+/* ============ COPY EMAIL ============ */
+(function () {
+  const btn = document.getElementById('copyEmail');
+  const emailEl = document.getElementById('emailText');
+  if (!btn || !emailEl) return;
+  function selectText() {
+    const range = document.createRange();
+    range.selectNodeContents(emailEl);
+    const sel = window.getSelection();
+    sel.removeAllRanges(); sel.addRange(range);
+  }
+  function flash(label) {
+    btn.textContent = label; btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('done'); }, 1800);
+  }
+  btn.addEventListener('click', () => {
+    const text = emailEl.textContent.trim();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => flash('Copied'), () => { selectText(); flash('Selected'); });
+    } else { selectText(); flash('Selected'); }
+  });
+})();
+
+/* ============ ANALYST DESK: TRADING DESK + RATING CALL ============ */
+(function () {
+  const $ = id => document.getElementById(id);
+  const wrap = $('desk');
+  if (!wrap) return;
+  const overlay = $('overlay'), oTitle = $('overlayTitle'), oText = $('overlayText'),
+        oStats = $('overlayStats'), oHint = $('overlayHint'), startBtn = $('start-btn');
+  const scoreEl = $('score'), bestEl = $('best'), scoreLabel = $('scoreLabel');
+  const tabs = [...document.querySelectorAll('.mode-tab')];
+  const panels = { trade: $('panelTrade'), rate: $('panelRate') };
+  const legends = { trade: $('legendTrade'), rate: $('legendRate') };
+  let mode = 'trade';
+
+  const store = {
+    get(k) { try { const v = localStorage.getItem(k); return v === null ? null : Number(v); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, String(v)); } catch (e) {} }
+  };
+  const KEY_TRADE = 'analystDeskBestAlphaBps', KEY_RATE = 'analystDeskBestCalls';
+  const sign = v => (v > 0 ? '+' : v < 0 ? '−' : '');
+  const fmtPct = v => sign(Math.round(v * 1000)) + Math.abs(v * 100).toFixed(1) + '%';
+  const fmtBps = b => sign(b) + Math.abs(b).toLocaleString('en-IE');
+  const cls = v => (v > 0 ? 'pos' : v < 0 ? 'neg' : '');
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const money = v => '$' + v.toFixed(2);
+  function inView() { const r = wrap.getBoundingClientRect(); return r.top < window.innerHeight && r.bottom > 0; }
+
+  const INTRO = {
+    trade: {
+      title: 'One trading year. Beat buy-and-hold.',
+      text: 'A stock trades for 250 days. Go long, flat or short as the headlines land. Headlines usually signal what comes next, but not always. Trading costs 10 bps each way, and your score is the alpha you make over simply holding the stock.',
+      btn: '▶ Open the Market',
+      hint: '<span class="kbd">↑</span> long · <span class="kbd">Space</span> flat · <span class="kbd">↓</span> short'
+    },
+    rate: {
+      title: 'Eight stocks. Fifteen seconds a call.',
+      text: 'Work out fair value from the inputs, compare it with the share price and rate the stock. BUY above +10% upside, SELL below −10%, otherwise HOLD.',
+      btn: '▶ Start Coverage',
+      hint: '<span class="kbd">B</span> buy · <span class="kbd">H</span> hold · <span class="kbd">S</span> sell'
+    }
+  };
+
+  function showOverlay(o) {
+    oTitle.textContent = o.title;
+    oText.textContent = o.text;
+    const stats = o.stats || [];
+    oStats.innerHTML = stats.map(([k, v, c]) =>
+      `<div class="result-tile"><span class="hud-label">${k}</span><span class="hud-value ${c || ''}">${v}</span></div>`).join('');
+    oStats.hidden = stats.length === 0;
+    startBtn.textContent = o.btn;
+    oHint.innerHTML = o.hint;
+    overlay.classList.remove('hidden');
+  }
+  function hideOverlay() { overlay.classList.add('hidden'); }
+
+  /* ---------- Mode 1: Trading Desk ---------- */
+  const DAYS = 250, STEP_MS = 200, COST = 0.001;
+  const REGIMES = {
+    bull: { mu: 0.0030, sd: 0.010 },
+    bear: { mu: -0.0035, sd: 0.015 },
+    chop: { mu: 0, sd: 0.011 }
+  };
+  const HEADLINES = {
+    bull: ['Earnings beat, full-year guidance raised', 'Buyback announced: 5% of shares outstanding', 'Major contract win confirmed', 'Margins expand as input costs fall', 'Central bank cuts rates by 25 bps', 'Broker upgrades the stock to Overweight', 'Dividend raised 12% on strong cash flow'],
+    bear: ['Profit warning: full-year guidance cut', 'Central bank hikes rates by 50 bps', 'Regulator opens an investigation', 'Largest customer moves to a rival', 'Rights issue announced at a deep discount', 'Inventory build points to weak demand', 'CFO resigns with immediate effect'],
+    chop: ['Results land in line with consensus', 'AGM passes without surprises', 'CFO speaks at an industry conference', 'Index rebalancing leaves the weight unchanged', 'Management reiterates guidance']
+  };
+  const T = { running: false, day: 0, pos: 0, price: [100], equity: [100], posHist: [0], rets: [0], events: {}, trades: 0, timer: null };
+  const hudYou = $('hudYou'), hudBh = $('hudBh'), hudAlpha = $('hudAlpha'), hudDay = $('hudDay');
+  const newsEl = $('news'), newsDay = $('newsDay'), newsText = $('newsText');
+  const posBtns = [...document.querySelectorAll('.pos-btn[data-pos]')];
+  const cv = $('game-canvas'), ctx = cv.getContext('2d');
+  let CW = 0, CH = 0;
+
+  function gauss() {
+    let u = 0, v = 0;
+    while (!u) u = Math.random();
+    while (!v) v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+
+  // A year is a chain of regimes. Each new regime arrives with a headline that
+  // describes it correctly about four times in five.
+  function buildYear() {
+    const rets = [0], events = {}, used = new Set();
+    const kinds = ['bull', 'bear', 'chop'];
+    let d = 1, regime = 'chop', len = 8, first = true;
+    while (d <= DAYS) {
+      if (first) {
+        events[d] = 'Opening bell. No news yet.';
+        first = false;
+      } else {
+        regime = pick(kinds.filter(k => k !== regime));
+        len = 18 + Math.floor(Math.random() * 18);
+        const told = Math.random() < 0.8 ? regime : pick(kinds.filter(k => k !== regime));
+        const fresh = HEADLINES[told].filter(h => !used.has(h));
+        const line = pick(fresh.length ? fresh : HEADLINES[told]);
+        used.add(line);
+        if (d <= DAYS - 6) events[d] = line;
+      }
+      const R = REGIMES[regime];
+      for (let i = 0; i < len && d <= DAYS; i++, d++) rets[d] = R.mu + R.sd * gauss();
+    }
+    return { rets, events };
+  }
+
+  function showNews(day, text) {
+    newsDay.textContent = 'DAY ' + day;
+    newsText.textContent = text;
+    newsEl.classList.remove('flash');
+    void newsEl.offsetWidth;
+    newsEl.classList.add('flash');
+  }
+
+  function renderPos() {
+    posBtns.forEach(b => {
+      const on = Number(b.dataset.pos) === T.pos;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+  }
+  function setPos(p) { if (!T.running) return; T.pos = p; renderPos(); }
+
+  function tradeStats() {
+    const you = T.equity[T.day] / 100 - 1, bh = T.price[T.day] / 100 - 1;
+    return { you, bh, bps: Math.round((you - bh) * 10000) };
+  }
+  function renderHud() {
+    const s = tradeStats();
+    hudYou.textContent = fmtPct(s.you); hudYou.className = 'hud-value ' + cls(Math.round(s.you * 1000));
+    hudBh.textContent = fmtPct(s.bh); hudBh.className = 'hud-value ' + cls(Math.round(s.bh * 1000));
+    hudAlpha.textContent = fmtBps(s.bps) + ' bps'; hudAlpha.className = 'hud-value ' + cls(s.bps);
+    hudDay.textContent = T.day + ' / ' + DAYS;
+    scoreEl.textContent = fmtBps(s.bps);
+  }
+
+  function niceStep(raw) { for (const s of [1, 2, 5, 10, 20, 25, 50, 100, 200]) if (s >= raw) return s; return 500; }
+
+  function drawChart() {
+    if (!CW) return;
+    ctx.clearRect(0, 0, CW, CH);
+    const L = 6, R = 44, TP = 12, B = 20, n = T.day;
+    let lo = 94, hi = 106;
+    for (let i = 0; i <= n; i++) {
+      lo = Math.min(lo, T.price[i], T.equity[i]);
+      hi = Math.max(hi, T.price[i], T.equity[i]);
+    }
+    const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
+    const X = d => L + (d / DAYS) * (CW - L - R);
+    const Y = v => TP + (1 - (v - lo) / (hi - lo)) * (CH - TP - B);
+
+    // price grid; the 100 line is the starting value for both series
+    ctx.font = '10px JetBrains Mono, Consolas, monospace';
+    ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; ctx.lineWidth = 1;
+    const step = niceStep((hi - lo) / 4);
+    for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) {
+      const base = Math.abs(v - 100) < 1e-6;
+      ctx.strokeStyle = base ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.06)';
+      ctx.setLineDash(base ? [4, 4] : []);
+      ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(CW - R, Y(v)); ctx.stroke();
+      ctx.fillStyle = 'rgba(138,138,154,0.95)';
+      ctx.fillText(String(v), CW - R + 8, Y(v));
+    }
+    ctx.setLineDash([]);
+
+    // quarters along the bottom
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    for (let q = 0; q < 4; q++) {
+      if (q > 0) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+        ctx.beginPath(); ctx.moveTo(X(q * DAYS / 4), TP); ctx.lineTo(X(q * DAYS / 4), CH - B); ctx.stroke();
+      }
+      ctx.fillStyle = 'rgba(138,138,154,0.8)';
+      ctx.fillText('Q' + (q + 1), X((q + 0.5) * DAYS / 4), CH - 5);
+    }
+
+    // headline markers
+    for (const key in T.events) {
+      const d = Number(key);
+      if (d > n || d <= 1) continue;
+      ctx.strokeStyle = 'rgba(123,97,255,0.28)';
+      ctx.beginPath(); ctx.moveTo(X(d), TP); ctx.lineTo(X(d), CH - B); ctx.stroke();
+      ctx.fillStyle = '#7b61ff';
+      ctx.beginPath(); ctx.moveTo(X(d), CH - B - 6); ctx.lineTo(X(d) + 4, CH - B); ctx.lineTo(X(d) - 4, CH - B); ctx.closePath(); ctx.fill();
+    }
+    if (n < 1) return;
+
+    // the stock, coloured by the position you held that day
+    ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    let i = 1;
+    while (i <= n) {
+      const p = T.posHist[i];
+      ctx.strokeStyle = p > 0 ? '#00e5a0' : p < 0 ? '#ff5d8f' : '#8a8a9a';
+      ctx.beginPath(); ctx.moveTo(X(i - 1), Y(T.price[i - 1]));
+      while (i <= n && T.posHist[i] === p) { ctx.lineTo(X(i), Y(T.price[i])); i++; }
+      ctx.stroke();
+    }
+
+    // your portfolio
+    ctx.strokeStyle = '#7b61ff'; ctx.lineWidth = 1.6; ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(X(0), Y(T.equity[0]));
+    for (let k = 1; k <= n; k++) ctx.lineTo(X(k), Y(T.equity[k]));
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // end points and labels
+    const px = X(n), yp = Y(T.price[n]), ye = Y(T.equity[n]);
+    ctx.fillStyle = '#f0efe8'; ctx.beginPath(); ctx.arc(px, yp, 3.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#7b61ff'; ctx.beginPath(); ctx.arc(px, ye, 3.5, 0, Math.PI * 2); ctx.fill();
+    if (T.running || T.finished) {
+      const youAbove = ye <= yp;
+      ctx.font = '700 10px JetBrains Mono, Consolas, monospace';
+      ctx.textAlign = px > CW * 0.2 ? 'right' : 'left';
+      const lx = px > CW * 0.2 ? px - 8 : px + 8;
+      ctx.fillStyle = '#a996ff'; ctx.fillText('YOU', lx, Math.max(TP + 8, Math.min(CH - B - 3, ye + (youAbove ? -8 : 15))));
+      ctx.fillStyle = '#f0efe8'; ctx.fillText('STOCK', lx, Math.max(TP + 8, Math.min(CH - B - 3, yp + (youAbove ? 15 : -8))));
+    }
+  }
+
+  function sizeCanvas() {
+    const r = cv.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    CW = r.width; CH = r.height;
+    cv.width = Math.round(CW * dpr); cv.height = Math.round(CH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawChart();
+  }
+
+  // Before the first game the chart shows a sample year so the desk is not empty.
+  function previewTrade() {
+    const y = buildYear();
+    T.rets = y.rets; T.events = y.events; T.finished = false;
+    T.price = [100]; T.equity = [100]; T.posHist = [0];
+    for (let d = 1; d <= DAYS; d++) { T.price[d] = T.price[d - 1] * (1 + y.rets[d]); T.equity[d] = 100; T.posHist[d] = 0; }
+    T.day = DAYS; T.pos = 0;
+    renderPos(); drawChart();
+  }
+
+  function stepTrade() {
+    if (!T.running) return;
+    const d = ++T.day, r = T.rets[d], prev = T.posHist[d - 1];
+    let eq = T.equity[d - 1];
+    if (T.pos !== prev) { eq *= 1 - COST * Math.abs(T.pos - prev); T.trades++; }
+    eq *= 1 + T.pos * r;
+    T.price[d] = T.price[d - 1] * (1 + r);
+    T.equity[d] = eq;
+    T.posHist[d] = T.pos;
+    if (T.events[d]) showNews(d, T.events[d]);
+    renderHud(); drawChart();
+    if (d >= DAYS) endTrade();
+  }
+
+  function startTrade() {
+    stopAll();
+    const y = buildYear();
+    Object.assign(T, { running: true, finished: false, day: 0, pos: 0, price: [100], equity: [100], posHist: [0], rets: y.rets, events: y.events, trades: 0 });
+    renderPos(); renderHud();
+    newsDay.textContent = 'NEWS'; newsText.textContent = 'Market opens in a moment.';
+    hideOverlay(); sizeCanvas();
+    T.timer = setInterval(stepTrade, STEP_MS);
+  }
+
+  function endTrade() {
+    T.running = false; T.finished = true;
+    clearInterval(T.timer); T.timer = null;
+    const s = tradeStats();
+    let peak = 100, dd = 0;
+    for (const v of T.equity) { peak = Math.max(peak, v); dd = Math.min(dd, v / peak - 1); }
+    const best = store.get(KEY_TRADE);
+    if (best === null || s.bps > best) { store.set(KEY_TRADE, s.bps); bestEl.textContent = fmtBps(s.bps); }
+    const title = s.bps >= 2500 ? 'Star stock picker. The allocators are calling.'
+      : s.bps >= 800 ? 'Real alpha. You earned the fee.'
+      : s.bps >= -300 ? 'Closet indexer. You matched the market the hard way.'
+      : 'The index won this year. It usually does.';
+    drawChart();
+    showOverlay({
+      title,
+      text: 'Year closed. Here is how your book did against simply holding the stock.',
+      stats: [
+        ['Your return', fmtPct(s.you), cls(Math.round(s.you * 1000))],
+        ['Buy &amp; hold', fmtPct(s.bh), cls(Math.round(s.bh * 1000))],
+        ['Alpha', fmtBps(s.bps) + ' bps', cls(s.bps)],
+        ['Max drawdown', fmtPct(dd), dd < -0.0005 ? 'neg' : ''],
+        ['Trades', String(T.trades), '']
+      ],
+      btn: '↻ Trade Another Year',
+      hint: INTRO.trade.hint
+    });
+  }
+
+  /* ---------- Mode 2: Rating Call ---------- */
+  const ROUNDS = 8, CALL_MS = 15000, READ_MS = 4200;
+  const COMPANIES = [['NQGS', 'Northquay Gases'], ['LFRB', 'Liffey Robotics'], ['GLMF', 'Glenmara Foods'], ['MRLW', 'Marlow Semicon'], ['TLKA', 'Tolka Logistics'], ['DDRE', 'Dodder Energy'], ['CLNH', 'Clonmore Health'], ['KSTP', 'Kestrel Payments'], ['BRWT', 'Barrow Water'], ['SLNY', 'Slaney Insurance']];
+  const DCF_SETS = [[8, 3], [9, 4], [10, 2], [7, 3], [12, 2], [10, 5], [9, 1], [8, 4], [11, 3]];
+  const FCFS = [1.2, 2, 2.4, 3, 4, 5, 6], EPSS = [1.5, 2, 2.5, 3.2, 4, 5, 6.5], PES = [8, 10, 12, 15, 18, 20, 25];
+  const Q = { running: false, awaiting: false, i: 0, right: 0, qs: [], t0: 0, tick: null, next: null };
+  const rcTicker = $('rcTicker'), rcName = $('rcName'), rcRound = $('rcRound'), rcMethod = $('rcMethod'),
+        rcGrid = $('rcGrid'), rcBar = $('rcBar'), rcFeedback = $('rcFeedback'), rcNext = $('rcNext');
+  const callBtns = [...document.querySelectorAll('.call-btn')];
+
+  function makeQuestion(want, company) {
+    for (let tries = 0; tries < 60; tries++) {
+      let value, inputs, method, working;
+      if (Math.random() < 0.55) {
+        const [r, g] = pick(DCF_SETS), f = pick(FCFS);
+        value = f / ((r - g) / 100);
+        method = 'GORDON GROWTH DCF';
+        inputs = [['FCF / share, next year', money(f)], ['WACC', r + '%'], ['Growth, perpetual', g + '%']];
+        working = `${money(f)} ÷ (${r}% − ${g}%)`;
+      } else {
+        const e = pick(EPSS), pe = pick(PES);
+        value = e * pe;
+        method = 'TRADING COMPS';
+        inputs = [['EPS, next year', money(e)], ['Peer median P/E', pe + '×']];
+        working = `${money(e)} × ${pe}`;
+      }
+      const u = want === 'BUY' ? 0.18 + Math.random() * 0.27
+        : want === 'SELL' ? -(0.16 + Math.random() * 0.19)
+        : Math.random() * 0.12 - 0.06;
+      let price = value / (1 + u);
+      price = price >= 100 ? Math.round(price) : Math.round(price * 2) / 2;
+      const up = value / price - 1;
+      const call = up > 0.10 ? 'BUY' : up < -0.10 ? 'SELL' : 'HOLD';
+      const a = Math.abs(up);
+      if (call !== want || (a > 0.07 && a < 0.13)) continue;   // keep calls clear of the ±10% line
+      return { ticker: company[0], name: company[1], method, inputs, working, value, price, up, call };
+    }
+    return makeQuestion('BUY', company);
+  }
+
+  function showQuestion() {
+    const q = Q.qs[Q.i];
+    rcTicker.textContent = q.ticker; rcName.textContent = q.name;
+    rcRound.textContent = `Call ${Q.i + 1} / ${ROUNDS}`;
+    rcMethod.textContent = q.method;
+    rcGrid.innerHTML = [['Share price', money(q.price), 'price']].concat(q.inputs).map(([k, v, c]) =>
+      `<div class="hud-tile ${c || ''}"><span class="hud-label">${k}</span><span class="hud-value">${v}</span></div>`).join('');
+    rcFeedback.textContent = ''; rcNext.hidden = true;
+    callBtns.forEach(b => { b.disabled = false; b.classList.remove('correct', 'wrong'); });
+    rcBar.style.width = '100%';
+    Q.awaiting = true; Q.t0 = performance.now();
+    Q.tick = setInterval(() => {
+      const left = 1 - (performance.now() - Q.t0) / CALL_MS;
+      rcBar.style.width = Math.max(0, left * 100) + '%';
+      if (left <= 0) answer(null);
+    }, 100);
+  }
+
+  function answer(call) {
+    if (!Q.awaiting) return;
+    Q.awaiting = false; clearInterval(Q.tick); Q.tick = null;
+    const q = Q.qs[Q.i], ok = call === q.call;
+    if (ok) Q.right++;
+    callBtns.forEach(b => {
+      b.disabled = true;
+      if (b.dataset.call === q.call) b.classList.add('correct');
+      else if (b.dataset.call === call) b.classList.add('wrong');
+    });
+    const verdict = call === null ? '<b class="bad">Out of time.</b>' : ok ? '<b class="ok">Good call.</b>' : '<b class="bad">Wrong call.</b>';
+    rcFeedback.innerHTML = `${verdict} Fair value ${q.working} = <b>${money(q.value)}</b> against a price of ${money(q.price)}, so upside is <b>${fmtPct(q.up)}</b>. The rating is <b>${q.call}</b>.`;
+    scoreEl.textContent = Q.right + ' / ' + ROUNDS;
+    rcNext.textContent = Q.i + 1 < ROUNDS ? 'Next →' : 'See results →';
+    rcNext.hidden = false;
+    Q.next = setTimeout(advance, READ_MS);
+  }
+
+  function advance() {
+    if (!Q.running || Q.awaiting) return;
+    clearTimeout(Q.next); Q.next = null;
+    Q.i++;
+    if (Q.i < ROUNDS) showQuestion(); else endRate();
+  }
+
+  function startRate() {
+    stopAll();
+    const wants = shuffle(['BUY', 'BUY', 'BUY', 'HOLD', 'HOLD', 'SELL', 'SELL', 'SELL']);
+    const cos = shuffle(COMPANIES);
+    Q.qs = wants.map((w, i) => makeQuestion(w, cos[i]));
+    Q.i = 0; Q.right = 0; Q.running = true;
+    scoreEl.textContent = '0 / ' + ROUNDS;
+    hideOverlay(); showQuestion();
+  }
+
+  function endRate() {
+    Q.running = false;
+    const best = store.get(KEY_RATE);
+    if (best === null || Q.right > best) { store.set(KEY_RATE, Q.right); bestEl.textContent = Q.right + ' / ' + ROUNDS; }
+    const title = Q.right === ROUNDS ? 'Clean sheet. Eight for eight.'
+      : Q.right >= 6 ? 'Sell-side ready.'
+      : Q.right >= 4 ? 'Decent coverage. The PM will have questions.'
+      : 'Back to the model. Check the denominator.';
+    showOverlay({
+      title,
+      text: 'Coverage round finished. Every call was a Gordon growth DCF or a peer-multiple check.',
+      stats: [
+        ['Calls right', Q.right + ' / ' + ROUNDS, Q.right >= 6 ? 'pos' : Q.right < 4 ? 'neg' : ''],
+        ['Hit rate', Math.round(Q.right / ROUNDS * 100) + '%', '']
+      ],
+      btn: '↻ Cover Eight More',
+      hint: INTRO.rate.hint
+    });
+  }
+
+  /* ---------- Shared wiring ---------- */
+  function stopAll() {
+    T.running = false; clearInterval(T.timer); T.timer = null;
+    Q.running = false; Q.awaiting = false;
+    clearInterval(Q.tick); clearTimeout(Q.next); Q.tick = null; Q.next = null;
+  }
+
+  function setMode(m) {
+    stopAll();
+    mode = m;
+    tabs.forEach(t => { const on = t.dataset.mode === m; t.classList.toggle('active', on); t.setAttribute('aria-selected', String(on)); });
+    for (const k in panels) { panels[k].hidden = k !== m; legends[k].hidden = k !== m; }
+    if (m === 'trade') {
+      scoreLabel.textContent = 'ALPHA (BPS)'; scoreEl.textContent = '0';
+      const b = store.get(KEY_TRADE); bestEl.textContent = b === null ? '–' : fmtBps(b);
+      requestAnimationFrame(sizeCanvas);
+    } else {
+      scoreLabel.textContent = 'CALLS RIGHT'; scoreEl.textContent = '0 / ' + ROUNDS;
+      const b = store.get(KEY_RATE); bestEl.textContent = b === null ? '–' : b + ' / ' + ROUNDS;
+      callBtns.forEach(b2 => { b2.disabled = true; b2.classList.remove('correct', 'wrong'); });
+    }
+    showOverlay(INTRO[m]);
+  }
+
+  tabs.forEach(t => t.addEventListener('click', () => { if (t.dataset.mode !== mode) setMode(t.dataset.mode); }));
+  startBtn.addEventListener('click', () => (mode === 'trade' ? startTrade() : startRate()));
+  posBtns.forEach(b => b.addEventListener('click', () => setPos(Number(b.dataset.pos))));
+  callBtns.forEach(b => b.addEventListener('click', () => answer(b.dataset.call)));
+  rcNext.addEventListener('click', advance);
+
+  window.addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey || !inView()) return;
+    const onButton = e.target instanceof HTMLElement && e.target.tagName === 'BUTTON';
+    const k = e.key.toLowerCase();
+    if (mode === 'trade' && T.running) {
+      if (e.code === 'ArrowUp' || k === 'l') { e.preventDefault(); setPos(1); }
+      else if (e.code === 'ArrowDown' || k === 's') { e.preventDefault(); setPos(-1); }
+      else if ((e.code === 'Space' && !onButton) || k === 'f') { e.preventDefault(); setPos(0); }
+    } else if (mode === 'rate' && Q.running) {
+      if (Q.awaiting) {
+        if (k === 'b') answer('BUY'); else if (k === 'h') answer('HOLD'); else if (k === 's') answer('SELL');
+      } else if ((e.code === 'Enter' || e.code === 'ArrowRight') && !onButton) { e.preventDefault(); advance(); }
+    }
+  });
+
+  window.addEventListener('resize', sizeCanvas);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawChart).catch(() => {});
+
+  const b0 = store.get(KEY_TRADE);
+  bestEl.textContent = b0 === null ? '–' : fmtBps(b0);
+  callBtns.forEach(b => { b.disabled = true; });
+  previewTrade();
+  sizeCanvas();
+})();
+</script>
+</body>
+</html>
